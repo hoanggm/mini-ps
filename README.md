@@ -1,6 +1,10 @@
 1> MiniPubSub
 
 ```bash 
+mvn clean compile
+```
+
+```bash 
 cd mini-ps/
 ```
 
