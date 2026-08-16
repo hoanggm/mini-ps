@@ -48,6 +48,10 @@ public class PubSubHandler extends SimpleChannelInboundHandler<PubSubProto.Messa
                 handleAck(ctx, request.getMessageId());
                 break;
 
+            case PING:
+                handlePing(ctx);
+                break;
+
             default:
                 log.warn("Unknown command type: [{}]", type);
                 sendResponse(ctx, MessageResponse.Status.ERROR, topic, "Unknown command type");
@@ -97,6 +101,10 @@ public class PubSubHandler extends SimpleChannelInboundHandler<PubSubProto.Messa
         }
 
         topicManager.acknowledge(messageId, ctx.channel());
+    }
+
+    private void handlePing(ChannelHandlerContext ctx) {
+        log.debug("Received PING from client [{}]. Timer reset", ctx.channel().remoteAddress());
     }
 
     private void sendResponse(ChannelHandlerContext ctx, MessageResponse.Status status,

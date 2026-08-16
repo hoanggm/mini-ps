@@ -16,7 +16,7 @@ import org.mini.pubsub.proto.PubSubProto;
 import java.util.concurrent.TimeUnit;
 
 public class PipelineInitializer extends ChannelInitializer<SocketChannel> {
-    private static final int READ_IDLE_TIMEOUT_SECONDS = 60;
+    private static final int READ_IDLE_TIMEOUT_SECONDS = 120;
     private static final int WRITE_IDLE_TIMEOUT_SECONDS = 0;
     private static final int ALL_IDLE_TIMEOUT_SECONDS = 0;
     private final TopicManager topicManager;
