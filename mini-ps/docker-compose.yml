@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  mini-pubsub:
+    container_name: mini-pubsub-service
+    image: hoanggm/mini-pubsub:v1.0.0
+    ports:
+      - "9809:9809"
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+      - SERVER_PORT=9809
+      - MAX_RETRIES=3
+      - ACK_TIMEOUT_SECONDS=5
+    deploy:
+      resources:
+        limits:
+          cpus: '3.0'
+          memory: 2048M
+        reservations:
+          cpus: '1.0'
+          memory: 512M
+    restart: always
+    networks:
+      - mini-ps-network
+
+networks:
+  mini-ps-network:
+    name: mini-ps-network
+    driver: bridge
