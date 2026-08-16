@@ -114,7 +114,7 @@ public class NettyServer {
 
             bossGroup = null;
             workerGroup = null;
-            log.info("Netty Server stopped successfully.");
+            log.info("Netty Server stopped successfully");
         }
     }
 
