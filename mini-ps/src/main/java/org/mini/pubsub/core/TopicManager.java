@@ -7,6 +7,7 @@ import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.ScheduledFuture;
 import org.mini.pubsub.config.GlobalConfig;
+import org.mini.pubsub.netty.cluster.ClusterManager;
 import org.mini.pubsub.proto.PubSubProto.MessageResponse;
 import org.slf4j.Logger;
 
@@ -21,12 +22,17 @@ public class TopicManager {
     private final Map<String, Set<Subscription>> topicSubscriptions;
     private final Map<String, ChannelGroup> topicChannelGroups;
     private final Map<String, UnAckedMessage> pendingUnAckedMessages;
+    private ClusterManager clusterManager;
 
     public TopicManager(Logger logger) {
         this.log = logger;
         this.topicSubscriptions = new ConcurrentHashMap<>();
         this.topicChannelGroups = new ConcurrentHashMap<>();
         this.pendingUnAckedMessages = new ConcurrentHashMap<>();
+    }
+
+    public void setClusterManager(ClusterManager clusterManager) {
+        this.clusterManager = clusterManager;
     }
 
     /**
@@ -43,7 +49,12 @@ public class TopicManager {
 
         // 2. Thêm vào Netty ChannelGroup
         ChannelGroup group = topicChannelGroups.computeIfAbsent(
-                topic, k -> new DefaultChannelGroup(GlobalEventExecutor.INSTANCE)
+                topic, k -> {
+                    if (clusterManager != null) {
+                        clusterManager.registerTopicListener(k);
+                    }
+                    return new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
+                }
         );
         group.add(channel);
 
@@ -105,9 +116,20 @@ public class TopicManager {
     }
 
     /**
-     * Broadcast tin nhắn tới tất cả Subscriber trong Topic và cập nhật Metrics.
+     * Broadcast tin nhắn
      */
     public void publish(String topic, byte[] payload) {
+        if (clusterManager != null) {
+            clusterManager.publishToCluster(topic, payload);
+        } else {
+            publishLocal(topic, payload);
+        }
+    }
+
+    /**
+     * Broadcast tin nhắn tới tất cả Subscriber trong Topic và cập nhật Metrics.
+     */
+    public void publishLocal(String topic, byte[] payload) {
         ChannelGroup group = topicChannelGroups.get(topic);
         if (group == null || group.isEmpty()) return;
 
@@ -120,7 +142,6 @@ public class TopicManager {
                 .setMessageId(msgId)
                 .build();
 
-        // Broadcast tới từng subscriber và lên lịch chờ ACK
         for (Channel channel : group) {
             String ackKey = msgId + "_" + channel.id().asShortText();
             UnAckedMessage msg = new UnAckedMessage(msgId, channel, response);

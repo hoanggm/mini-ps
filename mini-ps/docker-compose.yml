@@ -1,24 +1,74 @@
 version: '3.8'
 
 services:
-  mini-pubsub:
-    container_name: mini-pubsub-service
+  mini-pubsub-node1:
+    container_name: mini-pubsub-node1
     image: hoanggm/mini-pubsub:v1.0.0
     ports:
-      - "9809:9809"
+      - "9801:9809"
     environment:
       - TZ=Asia/Ho_Chi_Minh
       - SERVER_PORT=9809
       - MAX_RETRIES=3
       - ACK_TIMEOUT_SECONDS=5
+      - CLUSTER_MEMBERS=mini-pubsub-node1:5701,mini-pubsub-node2:5701,mini-pubsub-node3:5701
+      - HAZELCAST_PORT=5701
     deploy:
       resources:
         limits:
-          cpus: '3.0'
-          memory: 2048M
-        reservations:
           cpus: '1.0'
-          memory: 512M
+          memory: 1024M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    restart: always
+    networks:
+      - mini-ps-network
+
+  mini-pubsub-node2:
+    container_name: mini-pubsub-node2
+    image: hoanggm/mini-pubsub:v1.0.0
+    ports:
+      - "9802:9809"
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+      - SERVER_PORT=9809
+      - MAX_RETRIES=3
+      - ACK_TIMEOUT_SECONDS=5
+      - CLUSTER_MEMBERS=mini-pubsub-node1:5701,mini-pubsub-node2:5701,mini-pubsub-node3:5701
+      - HAZELCAST_PORT=5701
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1024M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    restart: always
+    networks:
+      - mini-ps-network
+
+  mini-pubsub-node3:
+    container_name: mini-pubsub-node3
+    image: hoanggm/mini-pubsub:v1.0.0
+    ports:
+      - "9803:9809"
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+      - SERVER_PORT=9809
+      - MAX_RETRIES=3
+      - ACK_TIMEOUT_SECONDS=5
+      - CLUSTER_MEMBERS=mini-pubsub-node1:5701,mini-pubsub-node2:5701,mini-pubsub-node3:5701
+      - HAZELCAST_PORT=5701
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1024M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
     restart: always
     networks:
       - mini-ps-network

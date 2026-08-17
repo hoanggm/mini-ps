@@ -3,6 +3,7 @@ package org.mini.pubsub.app;
 import org.mini.pubsub.config.GlobalConfig;
 import org.mini.pubsub.core.TopicManager;
 import org.mini.pubsub.netty.NettyServer;
+import org.mini.pubsub.netty.cluster.ClusterManager;
 import org.mini.pubsub.util.CommonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,15 +20,20 @@ public class AppRunner {
 
         // 1. Khởi tạo Core State Manager
         TopicManager topicManager = new TopicManager(log);
+        ClusterManager clusterManager = new ClusterManager();
 
-        // 2. Khởi tạo Netty Server
-        NettyServer server = new NettyServer(GlobalConfig.PORT, topicManager, log);
+        // 2. Cross-link TopicManager và ClusterManager
+        topicManager.setClusterManager(clusterManager);
+        clusterManager.setTopicManager(topicManager);
+
+        // 3. Khởi tạo Netty Server
+        NettyServer server = new NettyServer(GlobalConfig.PORT, topicManager, clusterManager, log);
 
         try {
-            // 3. Start Server
+            // 4. Start Server
             server.start();
 
-            // 4. Giữ main thread sống để đợi server dừng
+            // 5. Giữ main thread sống để đợi server dừng
             server.awaitClose();
         } catch (InterruptedException e) {
             log.error("Application interrupted", e);

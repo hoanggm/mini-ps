@@ -12,8 +12,8 @@ import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.mini.pubsub.core.TopicManager;
+import org.mini.pubsub.netty.cluster.ClusterManager;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class NettyServer {
     private final Logger log;
@@ -22,11 +22,13 @@ public class NettyServer {
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
     private Channel serverChannel;
+    private final ClusterManager clusterManager;
 
-    public NettyServer(int port, TopicManager topicManager, Logger logger) {
+    public NettyServer(int port, TopicManager topicManager, ClusterManager clusterManager, Logger logger) {
         this.log = logger;
         this.port = port;
         this.topicManager = topicManager;
+        this.clusterManager = clusterManager;
     }
 
     /**
@@ -110,6 +112,9 @@ public class NettyServer {
             }
             if (workerGroup != null) {
                 workerGroup.shutdownGracefully();
+            }
+            if (clusterManager != null) {
+                clusterManager.shutdown();
             }
 
             bossGroup = null;
