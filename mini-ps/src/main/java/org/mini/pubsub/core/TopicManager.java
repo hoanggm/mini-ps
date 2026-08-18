@@ -9,11 +9,11 @@ import io.netty.util.concurrent.ScheduledFuture;
 import org.mini.pubsub.config.GlobalConfig;
 import org.mini.pubsub.netty.cluster.ClusterManager;
 import org.mini.pubsub.proto.PubSubProto.MessageResponse;
+import org.mini.pubsub.util.SnowflakeIdGenerator;
 import org.slf4j.Logger;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -23,6 +23,7 @@ public class TopicManager {
     private final Map<String, ChannelGroup> topicChannelGroups;
     private final Map<String, UnAckedMessage> pendingUnAckedMessages;
     private ClusterManager clusterManager;
+    private SnowflakeIdGenerator idGenerator;
 
     public TopicManager(Logger logger) {
         this.log = logger;
@@ -33,6 +34,10 @@ public class TopicManager {
 
     public void setClusterManager(ClusterManager clusterManager) {
         this.clusterManager = clusterManager;
+    }
+
+    public void setIdGenerator(SnowflakeIdGenerator idGenerator) {
+        this.idGenerator = idGenerator;
     }
 
     /**
@@ -133,7 +138,7 @@ public class TopicManager {
         ChannelGroup group = topicChannelGroups.get(topic);
         if (group == null || group.isEmpty()) return;
 
-        String msgId = UUID.randomUUID().toString();
+        long msgId = idGenerator.getNextId();
 
         MessageResponse response = MessageResponse.newBuilder()
                 .setStatus(MessageResponse.Status.SUCCESS)
@@ -180,7 +185,7 @@ public class TopicManager {
     /**
      * Xử lý khi nhận gói tin ACK từ Subscriber
      */
-    public void acknowledge(String messageId, Channel channel) {
+    public void acknowledge(Long messageId, Channel channel) {
         String ackKey = messageId + "_" + channel.id().asShortText();
         UnAckedMessage msg = pendingUnAckedMessages.remove(ackKey);
 

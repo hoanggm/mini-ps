@@ -9,6 +9,7 @@ public class GlobalConfig {
     public static Integer ACK_TIMEOUT_SECONDS;
     public static String CLUSTER_MEMBERS;
     public static String HAZELCAST_PORT;
+    public static String NODE_ID;
 
     static {
         Properties prop = new Properties();
@@ -29,11 +30,15 @@ public class GlobalConfig {
             HAZELCAST_PORT = System.getenv("HAZELCAST_PORT") != null
                     ? System.getenv("HAZELCAST_PORT")
                     : prop.getProperty("server.hazelcast.port");
+            NODE_ID = System.getenv("NODE_ID") != null
+                    ? System.getenv("NODE_ID")
+                    : prop.getProperty("node.id");
         } catch (Exception ex) {
             PORT = 80;
             MAX_RETRIES = 3;
             ACK_TIMEOUT_SECONDS = 5;
             CLUSTER_MEMBERS = "";
+            NODE_ID = "1";
         }
     }
 }

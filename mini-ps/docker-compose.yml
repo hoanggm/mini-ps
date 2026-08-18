@@ -13,6 +13,7 @@ services:
       - ACK_TIMEOUT_SECONDS=5
       - CLUSTER_MEMBERS=mini-pubsub-node1:5701,mini-pubsub-node2:5701,mini-pubsub-node3:5701
       - HAZELCAST_PORT=5701
+      - NODE_ID=1
     deploy:
       resources:
         limits:
@@ -37,6 +38,7 @@ services:
       - ACK_TIMEOUT_SECONDS=5
       - CLUSTER_MEMBERS=mini-pubsub-node1:5701,mini-pubsub-node2:5701,mini-pubsub-node3:5701
       - HAZELCAST_PORT=5701
+      - NODE_ID=2
     deploy:
       resources:
         limits:
@@ -61,6 +63,7 @@ services:
       - ACK_TIMEOUT_SECONDS=5
       - CLUSTER_MEMBERS=mini-pubsub-node1:5701,mini-pubsub-node2:5701,mini-pubsub-node3:5701
       - HAZELCAST_PORT=5701
+      - NODE_ID=3
     deploy:
       resources:
         limits:

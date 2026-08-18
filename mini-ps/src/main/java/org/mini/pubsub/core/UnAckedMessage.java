@@ -5,19 +5,19 @@ import io.netty.util.concurrent.ScheduledFuture;
 import org.mini.pubsub.proto.PubSubProto;
 
 public class UnAckedMessage {
-    private final String messageId;
+    private final Long messageId;
     private final Channel channel;
     private final PubSubProto.MessageResponse response;
     private int retryCount = 0;
     private ScheduledFuture<?> timerTask;
 
-    public UnAckedMessage(String messageId, Channel channel, PubSubProto.MessageResponse response) {
+    public UnAckedMessage(Long messageId, Channel channel, PubSubProto.MessageResponse response) {
         this.messageId = messageId;
         this.channel = channel;
         this.response = response;
     }
 
-    public String getMessageId() {
+    public Long getMessageId() {
         return messageId;
     }
 

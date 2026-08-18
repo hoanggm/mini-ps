@@ -93,8 +93,8 @@ public class PubSubHandler extends SimpleChannelInboundHandler<PubSubProto.Messa
         topicManager.publish(topic, payload);
     }
 
-    private void handleAck(ChannelHandlerContext ctx, String messageId) {
-        if (messageId == null || messageId.isBlank()) {
+    private void handleAck(ChannelHandlerContext ctx, Long messageId) {
+        if (messageId == null) {
             log.warn("Received invalid ACK with empty messageId from [{}]",
                     ctx.channel().remoteAddress());
             return;
